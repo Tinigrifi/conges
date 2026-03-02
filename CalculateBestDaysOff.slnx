@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CalculateBestDaysOff.Domain/CalculateBestDaysOff.Domain.csproj" />
+  <Project Path="CalculateBestDaysOff.Tests/CalculateBestDaysOff.Tests.csproj" />
+  <Project Path="CalculateBestDaysOff/CalculateBestDaysOff.csproj" />
+  <Project Path="Conges/Conges.csproj" />
+</Solution>
