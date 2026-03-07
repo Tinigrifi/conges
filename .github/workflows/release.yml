@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Test
+        run: dotnet test --configuration Release --verbosity normal
+
+      - name: Publish CLI (CalculateBestDaysOff)
+        run: |
+          dotnet publish CalculateBestDaysOff/CalculateBestDaysOff.csproj `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            --output publish/cli
+
+      - name: Publish WinForms (Conges)
+        run: |
+          dotnet publish Conges/Conges.csproj `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            --output publish/winforms
+
+      - name: Zip CLI
+        run: Compress-Archive -Path publish/cli/* -DestinationPath CalculateBestDaysOff-${{ github.ref_name }}-win-x64.zip
+
+      - name: Zip WinForms
+        run: Compress-Archive -Path publish/winforms/* -DestinationPath Conges-${{ github.ref_name }}-win-x64.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            CalculateBestDaysOff-${{ github.ref_name }}-win-x64.zip
+            Conges-${{ github.ref_name }}-win-x64.zip
